@@ -1,0 +1,1 @@
+Hi {{ patient.name }}, your appointment for {{ slot_start|date:"D, d M Y H:i" }} has been cancelled. - Care
