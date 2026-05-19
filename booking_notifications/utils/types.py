@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ResourceType(str, Enum):
-    booking = "booking", "Booking"
+    booking = "booking"
 
 
 class EventType(str, Enum):
