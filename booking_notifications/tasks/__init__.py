@@ -10,6 +10,10 @@ from booking_notifications.tasks.sweep_reminders import sweep_reminders
 
 @current_app.on_after_finalize.connect
 def setup_periodic_tasks(sender: Celery, **kwargs):
+    if not plugin_settings.TOKEN_BOOKING_NOTIFICATIONS_ENABLED:
+        return
+    if not plugin_settings.BOOKING_NOTIFY_REMINDER:
+        return
     sweep = max(1, int(plugin_settings.BOOKING_REMINDER_SWEEP_MINUTES))
     sender.add_periodic_task(
         sweep * 60,

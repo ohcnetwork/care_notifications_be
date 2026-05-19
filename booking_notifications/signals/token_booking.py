@@ -3,13 +3,17 @@ from care.emr.resources.scheduling.slot.spec import BookingStatusChoices
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from booking_notifications.utils.handle_cancelled import handle_cancelled
-from booking_notifications.utils.handle_confirmed import handle_confirmed
-from booking_notifications.utils.handle_rescheduled import handle_rescheduled
+from booking_notifications.settings import plugin_settings
+from booking_notifications.utils.booking.handle_cancelled import handle_cancelled
+from booking_notifications.utils.booking.handle_confirmed import handle_confirmed
+from booking_notifications.utils.booking.handle_rescheduled import handle_rescheduled
 
 
 @receiver(pre_save, sender=TokenBooking)
 def capture_status(sender, instance: TokenBooking, **kwargs):
+    if not plugin_settings.TOKEN_BOOKING_NOTIFICATIONS_ENABLED:
+        return
+
     if not instance.pk:
         instance._previous_status = None
         return
@@ -21,6 +25,9 @@ def capture_status(sender, instance: TokenBooking, **kwargs):
 
 @receiver(post_save, sender=TokenBooking)
 def handle_notification(sender, instance: TokenBooking, created: bool, **kwargs):
+    if not plugin_settings.TOKEN_BOOKING_NOTIFICATIONS_ENABLED:
+        return
+
     new_status = instance.status
     old_status = getattr(instance, "_previous_status", None)
 

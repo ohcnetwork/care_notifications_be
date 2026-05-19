@@ -72,14 +72,13 @@ class PluginSettings:
 
 
 DEFAULTS = {
+    "TOKEN_BOOKING_NOTIFICATIONS_ENABLED": True,
     "BOOKING_REMINDER_LEAD_MINUTES": 60,
     "BOOKING_REMINDER_SWEEP_MINUTES": 1,
-    "BOOKING_NOTIFY_SMS_ENABLED": True,
     "BOOKING_NOTIFY_CONFIRMATION": True,
     "BOOKING_NOTIFY_REMINDER": True,
     "BOOKING_NOTIFY_CANCEL": True,
     "BOOKING_NOTIFY_RESCHEDULED": True,
-    "BOOKING_NOTIFY_SMS_SENDER": "",
     "BOOKING_CONFIRMATION_SMS_TEXT": "Hi {patient_name}, your appointment is confirmed for {slot_start:%a, %d %b %Y %H:%M}. - Care",
     "BOOKING_REMINDER_SMS_TEXT": "Reminder: {patient_name}, your appointment is at {slot_start:%a, %d %b %Y %H:%M}. - Care",
     "BOOKING_CANCEL_SMS_TEXT": "Hi {patient_name}, your appointment for {slot_start:%a, %d %b %Y %H:%M} has been cancelled. - Care",
