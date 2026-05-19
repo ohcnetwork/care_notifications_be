@@ -1,1 +1,0 @@
-Reminder: {{ patient.name }}, your appointment is at {{ slot_start|date:"D, d M Y H:i" }}. - Care

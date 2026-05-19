@@ -1,1 +1,0 @@
-Hi {{ patient.name }}, your appointment is confirmed for {{ slot_start|date:"D, d M Y H:i" }}. - Care

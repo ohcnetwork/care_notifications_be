@@ -80,10 +80,10 @@ DEFAULTS = {
     "BOOKING_NOTIFY_CANCEL": True,
     "BOOKING_NOTIFY_RESCHEDULED": True,
     "BOOKING_NOTIFY_SMS_SENDER": "",
-    "BOOKING_CONFIRMATION_SMS_TEMPLATE": "sms/booking_confirmation.txt",
-    "BOOKING_REMINDER_SMS_TEMPLATE": "sms/booking_reminder.txt",
-    "BOOKING_CANCEL_SMS_TEMPLATE": "sms/booking_cancel.txt",
-    "BOOKING_RESCHEDULED_SMS_TEMPLATE": "sms/booking_rescheduled.txt",
+    "BOOKING_CONFIRMATION_SMS_TEXT": "Hi {patient_name}, your appointment is confirmed for {slot_start:%a, %d %b %Y %H:%M}. - Care",
+    "BOOKING_REMINDER_SMS_TEXT": "Reminder: {patient_name}, your appointment is at {slot_start:%a, %d %b %Y %H:%M}. - Care",
+    "BOOKING_CANCEL_SMS_TEXT": "Hi {patient_name}, your appointment for {slot_start:%a, %d %b %Y %H:%M} has been cancelled. - Care",
+    "BOOKING_RESCHEDULED_SMS_TEXT": "Hi {patient_name}, your previous appointment has been rescheduled. - Care",
 }
 
 REQUIRED_SETTINGS: set[str] = set()

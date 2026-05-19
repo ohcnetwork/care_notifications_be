@@ -1,34 +1,33 @@
 import logging
 
 from care.utils import sms
-from care.utils.sms.utils import get_sms_content
 from django.utils import timezone
 
-from booking_notifications.utils.notification_type import NotificationType
 from booking_notifications.settings import plugin_settings
+from booking_notifications.utils.types import EventType
 
 logger = logging.getLogger(__name__)
 
 
-_TEMPLATE_SETTING = {
-    NotificationType.confirmation: "BOOKING_CONFIRMATION_SMS_TEMPLATE",
-    NotificationType.reminder: "BOOKING_REMINDER_SMS_TEMPLATE",
-    NotificationType.cancellation: "BOOKING_CANCEL_SMS_TEMPLATE",
-    NotificationType.reschedule: "BOOKING_RESCHEDULED_SMS_TEMPLATE",
+_TEXT_SETTING = {
+    EventType.confirmation: "BOOKING_CONFIRMATION_SMS_TEXT",
+    EventType.reminder: "BOOKING_REMINDER_SMS_TEXT",
+    EventType.cancellation: "BOOKING_CANCEL_SMS_TEXT",
+    EventType.reschedule: "BOOKING_RESCHEDULED_SMS_TEXT",
 }
 
 
 def build_context(booking) -> dict:
     return {
-        "patient": booking.patient,
+        "patient_name": booking.patient.name,
         "slot_start": timezone.localtime(booking.token_slot.start_datetime),
     }
 
 
-def send_sms(booking, notif_type: NotificationType) -> bool:
+def send_sms(booking, event_type: EventType) -> bool:
     try:
-        template_path = getattr(plugin_settings, _TEMPLATE_SETTING[notif_type])
-        content = get_sms_content(template_path, build_context(booking))
+        template = getattr(plugin_settings, _TEXT_SETTING[event_type])
+        content = template.format(**build_context(booking))
         sms.send_text_message(
             content=content,
             recipients=[booking.patient.phone_number],

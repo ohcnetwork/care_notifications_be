@@ -1,14 +1,13 @@
 from care.utils.models.base import BaseModel
 from django.db import models
 
-
 class BookingNotification(BaseModel):
-    booking = models.OneToOneField(
+    resource_type = models.CharField(max_length=32,)
+    booking = models.ForeignKey(
         "emr.TokenBooking",
         on_delete=models.CASCADE,
-        related_name="notification_state",
+        related_name="notifications",
     )
-    confirmation_sent_at = models.DateTimeField(null=True, blank=True)
-    reminder_sent_at = models.DateTimeField(null=True, blank=True)
-    cancel_sent_at = models.DateTimeField(null=True, blank=True)
-    rescheduled_sent_at = models.DateTimeField(null=True, blank=True)
+    event_type = models.CharField(max_length=32,)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
