@@ -1,6 +1,26 @@
 # care_booking_notifications_be
 
-Plug for CARE that sends SMS notifications to patients on booking confirm, reminder, cancel, and reschedule.
+CARE plug that sends notifications to patients.
+
+## Currently supports
+
+1. Token bookings — confirm, reminder, cancel, reschedule.
+
+## Install
+
+Add to `plug_config.py`:
+
+```python
+booking_notifications = Plug(
+    name="booking_notifications",
+    package_name="git+https://github.com/ohcnetwork/care_notifications_be.git@main",
+    version="0.1.0",
+    configs={},
+)
+plugs = [booking_notifications]
+```
+
+Then `make build && make up`.
 
 ## Settings
 
