@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""The setup script for booking_notifications — Booking Notifications plug for CARE."""
+"""The setup script for care_notifications — Notifications plug for CARE."""
 
 from setuptools import find_packages, setup
 
@@ -28,18 +28,18 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.13",
     ],
-    description="Booking Notifications plug for CARE — sends booking confirmations and pre-appointment reminders via SMS and email.",
+    description="Notifications plug for CARE — booking SMS and in-app notifications for clinical events.",
     install_requires=requirements,
     license="MIT license",
     long_description=readme,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords="booking_notifications",
-    name="booking_notifications",
-    packages=find_packages(include=["booking_notifications", "booking_notifications.*"]),
+    keywords="care_notifications",
+    name="care_notifications",
+    packages=find_packages(include=["care_notifications", "care_notifications.*"]),
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/ohcnetwork/care_booking_notifications_be",
+    url="https://github.com/ohcnetwork/care_notifications_be",
     version="0.1.0",
     zip_safe=False,
 )
