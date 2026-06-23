@@ -99,9 +99,36 @@ Message bodies are Python `str.format` templates. Available placeholders per eve
 
 ## API
 
-The plug exposes two read-only endpoints under `/api/care_notifications/`:
+All endpoints are mounted under `/api/care_notifications/`.
 
-| Path | Purpose |
-|---|---|
-| `GET /in_app_notifications/` | Inbox feed. Returns the caller's own rows; superuser sees all. Filter by `event_type`, `resource_type`, `resource_id`. |
-| `GET /outbound_notifications/` | SMS audit log. Filter by the same params. |
+### `GET /in_app_notifications/`
+
+Inbox feed. Ordered via `?ordering=` on `created_date` or `modified_date` (prefix with `-` for desc).
+
+| Filter | Type | Possible values |
+|---|---|---|
+| `event_type` | string (iexact) | `booking_confirmation`, `booking_reminder`, `booking_cancellation`, `booking_reschedule`, `service_request_raised`, `diagnostic_report_ready`, `encounter_ip_created`, `medication_stock_near_expiry`, `medication_stock_low` |
+| `resource_type` | string (iexact) | `booking`, `service_request`, `diagnostic_report`, `encounter`, `medication_stock` |
+| `resource_id` | UUID | external_id of the underlying resource |
+| `recipient` | UUID | external_id of the recipient user |
+| `unread` | bool | `true` → only unread (`read_at IS NULL`); `false` → only read |
+
+### `GET /in_app_notifications/{id}/`
+
+Retrieve a single notification (caller's own).
+
+### `POST /in_app_notifications/mark_read/`
+
+Marks the given notifications as read. Body: `{"ids": ["<external_id>", ...]}`. Only the caller's own rows are touched (others silently ignored). Returns `{"updated": <count>}`.
+
+### `POST /in_app_notifications/mark_unread/`
+
+Inverse of `mark_read` — clears `read_at` back to `null`. Same body shape.
+
+### `GET /outbound_notifications/`
+
+SMS audit log. Same filter params as in-app (`event_type`, `resource_type`, `resource_id`); ordering on `created_date` or `sent_at`. Possible `event_type` values currently emitted via SMS: `booking_confirmation`, `booking_reminder`, `booking_cancellation`, `booking_reschedule`. `resource_type`: `booking`.
+
+### `GET /outbound_notifications/{id}/`
+
+Retrieve a single outbound (SMS) record.

@@ -15,4 +15,4 @@ class InAppNotification(BaseModel):
     title = models.CharField(max_length=255)
     body = models.TextField(blank=True)
     payload = models.JSONField(default=dict, blank=True)
-    read_at = models.DateTimeField(null=True, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True, db_index=True)
