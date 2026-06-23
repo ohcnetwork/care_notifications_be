@@ -119,7 +119,7 @@ Retrieve a single notification (caller's own).
 
 ### `POST /in_app_notifications/mark_read/`
 
-Marks the given notifications as read. Body: `{"ids": ["<external_id>", ...]}`. Only the caller's own rows are touched (others silently ignored). Returns `{"updated": <count>}`.
+Marks the given notifications as read. Body: `{"ids": ["<external_id>", ...]}`. Returns `{"updated": <count>}`.
 
 ### `POST /in_app_notifications/mark_unread/`
 
