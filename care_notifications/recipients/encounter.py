@@ -1,3 +1,4 @@
+from care.emr.models.encounter import EncounterOrganization
 from care.emr.models.organization import FacilityOrganizationUser
 from care.users.models import User
 
@@ -9,12 +10,9 @@ def care_team_members(encounter):
 
 
 def encounter_org_members(encounter):
-    if not encounter.facility_organization_cache:
-        return User.objects.none()
+    org_ids = EncounterOrganization.objects.filter(encounter=encounter).values("organization_id")
     user_ids = (
-        FacilityOrganizationUser.objects.filter(
-            organization_id__in=encounter.facility_organization_cache
-        )
+        FacilityOrganizationUser.objects.filter(organization_id__in=org_ids)
         .values_list("user_id", flat=True)
         .distinct()
     )
@@ -22,13 +20,18 @@ def encounter_org_members(encounter):
 
 
 def care_team_and_encounter_orgs(encounter):
-    """care_team_users + members of every org in facility_organization_cache."""
+    """care_team_users + members of orgs explicitly attached to this encounter.
+    """
     ids = set(encounter.care_team_users or [])
-    if encounter.facility_organization_cache:
+    org_ids = list(
+        EncounterOrganization.objects.filter(encounter=encounter).values_list(
+            "organization_id", flat=True
+        )
+    )
+    if org_ids:
         ids.update(
-            FacilityOrganizationUser.objects.filter(
-                organization_id__in=encounter.facility_organization_cache
-            ).values_list("user_id", flat=True)
+            FacilityOrganizationUser.objects.filter(organization_id__in=org_ids)
+            .values_list("user_id", flat=True)
         )
     if not ids:
         return User.objects.none()
