@@ -105,6 +105,10 @@ DEFAULTS = {
     "MEDICATION_NEAR_EXPIRY_BODY": "Expires {expiration_date}. Location: {location_name}.",
     "MEDICATION_LOW_STOCK_TITLE": "Low stock: {product_name}",
     "MEDICATION_LOW_STOCK_BODY": "Remaining {net_content}. Location: {location_name}.",
+    "WEBPUSH_NOTIFICATIONS_ENABLED": True,
+    "WEBPUSH_VAPID_PUBLIC_KEY": "sharable-key",
+    "WEBPUSH_VAPID_PRIVATE_KEY": "keep-it-secret",
+    "WEBPUSH_VAPID_ADMIN_EMAIL": "example@admin.com",
 }
 
 REQUIRED_SETTINGS: set[str] = set()
