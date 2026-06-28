@@ -63,6 +63,23 @@ class PluginSettings:
                     f'Please set the "{setting}" in the environment or the {PLUGIN_NAME} plugin config.'
                 )
 
+        if self.WEBPUSH_NOTIFICATIONS_ENABLED:
+            missing = [
+                name
+                for name in (
+                    "WEBPUSH_VAPID_PUBLIC_KEY",
+                    "WEBPUSH_VAPID_PRIVATE_KEY",
+                    "WEBPUSH_VAPID_ADMIN_EMAIL",
+                )
+                if not getattr(self, name)
+            ]
+            if missing:
+                raise ImproperlyConfigured(
+                    f"WEBPUSH_NOTIFICATIONS_ENABLED is True but required settings are missing: "
+                    f"{', '.join(missing)}. Set them via environment or the {PLUGIN_NAME} plugin config, "
+                    f"or set WEBPUSH_NOTIFICATIONS_ENABLED=False to disable web push."
+                )
+
     def reload(self) -> None:
         for attr in self._cached_attrs:
             delattr(self, attr)
@@ -106,9 +123,9 @@ DEFAULTS = {
     "MEDICATION_LOW_STOCK_TITLE": "Low stock: {product_name}",
     "MEDICATION_LOW_STOCK_BODY": "Remaining {net_content}. Location: {location_name}.",
     "WEBPUSH_NOTIFICATIONS_ENABLED": True,
-    "WEBPUSH_VAPID_PUBLIC_KEY": "sharable-key",
-    "WEBPUSH_VAPID_PRIVATE_KEY": "keep-it-secret",
-    "WEBPUSH_VAPID_ADMIN_EMAIL": "example@admin.com",
+    "WEBPUSH_VAPID_PUBLIC_KEY": "",
+    "WEBPUSH_VAPID_PRIVATE_KEY": "",
+    "WEBPUSH_VAPID_ADMIN_EMAIL": "",
 }
 
 REQUIRED_SETTINGS: set[str] = set()
