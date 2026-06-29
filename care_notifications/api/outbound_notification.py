@@ -4,11 +4,10 @@ from care.emr.api.viewsets.base import (
     EMRRetrieveMixin,
 )
 from care.security.authorization import AuthorizationController
-from django.core.exceptions import PermissionDenied
 from django_filters import rest_framework as filters
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
 
 from care_notifications.models.outbound_notification import OutboundNotification
 from care_notifications.resources.outbound_notification.spec import (
