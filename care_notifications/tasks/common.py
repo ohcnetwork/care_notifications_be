@@ -1,9 +1,12 @@
 from care.emr.models.scheduling.booking import TokenBooking
 from care.utils.models.base import BaseModel
 
+from care_notifications.channels.inapp import dispatch_inapp
 from care_notifications.channels.sms import send_sms
+from care_notifications.channels.webpush import dispatch_webpush
 from care_notifications.common.types import EventType, ResourceType
 from care_notifications.models.outbound_notification import OutboundNotification
+from care_notifications.settings import plugin_settings
 
 
 def get_booking(booking_id: int):
@@ -31,3 +34,36 @@ def dispatch(
         )
     return True
 
+
+def notify_users(
+    *,
+    recipients,
+    event_type: str,
+    resource_type: str,
+    resource_id,
+    title: str,
+    body: str = "",
+    payload: dict | None = None,
+) -> None:
+    recipients = list(recipients)
+    dispatch_inapp(
+        recipients=recipients,
+        event_type=event_type,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        title=title,
+        body=body,
+        payload=payload,
+    )
+    if plugin_settings.WEBPUSH_NOTIFICATIONS_ENABLED:
+        dispatch_webpush(
+            recipients=recipients,
+            title=title,
+            body=body,
+            payload={
+                "event_type": event_type,
+                "resource_type": resource_type,
+                "resource_id": str(resource_id),
+                **(payload or {}),
+            },
+        )

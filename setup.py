@@ -12,6 +12,7 @@ requirements = [
     "djangorestframework",
     "celery",
     "django-environ",
+    "pywebpush",
 ]
 
 test_requirements = []

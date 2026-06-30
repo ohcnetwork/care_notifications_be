@@ -3,6 +3,7 @@ from care.emr.api.viewsets.base import (
     EMRListMixin,
     EMRRetrieveMixin,
 )
+from care.security.authorization import AuthorizationController
 from django.utils import timezone
 from django_filters import rest_framework as filters
 from pydantic import UUID4, BaseModel, Field
@@ -37,6 +38,12 @@ class InAppNotificationViewSet(EMRListMixin, EMRRetrieveMixin, EMRBaseViewSet):
     filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     ordering_fields = ["created_date", "modified_date"]
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if AuthorizationController.call("can_list_all_notifications", self.request.user):
+            return queryset
+        return queryset.filter(recipient=self.request.user)
 
     @action(detail=False, methods=["POST"])
     def mark_read(self, request, *args, **kwargs):

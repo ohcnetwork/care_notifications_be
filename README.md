@@ -1,6 +1,6 @@
 # care_notifications_be
 
-CARE plug that sends notifications to patients (SMS) and clinicians (in-app).
+CARE plug that sends notifications to patients (SMS) and clinicians (in-app + web push).
 
 ## Currently supports
 
@@ -9,6 +9,7 @@ CARE plug that sends notifications to patients (SMS) and clinicians (in-app).
 3. Diagnostic reports — ready. (in-app)
 4. Encounters — IP admission with location assigned. (in-app)
 5. Medication stock — near expiry, low stock. (in-app)
+6. Web push — every clinician (in-app) notification is also delivered to subscribed browsers/devices. (web push)
 
 ## Install
 
@@ -86,6 +87,17 @@ Then `make build && make up`.
 | `MEDICATION_LOW_STOCK_TITLE` | `Low stock: {product_name}` | Inbox title. |
 | `MEDICATION_LOW_STOCK_BODY` | `Remaining {net_content}. Location: {location_name}.` | Inbox body. |
 
+### Web push (in-app companion)
+
+Every clinician in-app notification is also pushed to the user's subscribed browsers/devices via the [Web Push protocol](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) (`pywebpush` + VAPID), reusing the same title/body. Requires a frontend service worker to receive and display. Generate a keypair with the `py-vapid` CLI (ships with `pywebpush`): `vapid --gen`.
+
+| Key | Default | Description |
+|---|---|---|
+| `WEBPUSH_NOTIFICATIONS_ENABLED` | `True` | Master switch. When `True`, the three VAPID settings below are **required at startup** — the app refuses to boot without them. |
+| `WEBPUSH_VAPID_PUBLIC_KEY` | `""` | VAPID public key (base64url), served to the frontend so it can subscribe. |
+| `WEBPUSH_VAPID_PRIVATE_KEY` | `""` | VAPID private key (base64url), used to sign sends. Set via env / `PLUGIN_CONFIGS`, never commit. |
+| `WEBPUSH_VAPID_ADMIN_EMAIL` | `""` | Operator contact; becomes the `mailto:` `sub` claim in the VAPID JWT. |
+
 Message bodies are Python `str.format` templates. Available placeholders per event:
 
 | Event | Placeholders |
@@ -100,6 +112,8 @@ Message bodies are Python `str.format` templates. Available placeholders per eve
 ## API
 
 All endpoints are mounted under `/api/care_notifications/`.
+
+**Visibility:** super admins and users with an admin role (Administrator / Admin / Facility Admin) see every user's records; everyone else sees only their own (`in_app_notifications`, `web_push_subscriptions`). `outbound_notifications` (SMS audit) is **admin-only**.
 
 ### `GET /in_app_notifications/`
 
@@ -132,3 +146,25 @@ SMS audit log. Same filter params as in-app (`event_type`, `resource_type`, `res
 ### `GET /outbound_notifications/{id}/`
 
 Retrieve a single outbound (SMS) record.
+
+### `GET /web_push_subscriptions/`
+
+List the caller's registered Web Push device subscriptions (`id`, `endpoint`, `created_date`).
+
+### `POST /web_push_subscriptions/`
+
+Register (upsert by `endpoint`) the current browser's subscription. Body is the browser's `PushSubscription.toJSON()` shape:
+
+```json
+{ "endpoint": "https://...", "keys": { "p256dh": "<base64url>", "auth": "<base64url>" } }
+```
+
+Returns `{id, endpoint, created_date}`. Re-registering the same `endpoint` updates the existing row (one row per device).
+
+### `POST /web_push_subscriptions/unsubscribe/`
+
+Opt a device out. Body: `{"endpoint": "<endpoint>"}`. Deletes the caller's matching subscription. Returns `{"deleted": <count>}`.
+
+### `GET /web_push_subscriptions/vapid_public_key/`
+
+Returns `{"public_key": "<WEBPUSH_VAPID_PUBLIC_KEY>"}` for the frontend service worker to call `pushManager.subscribe()`.

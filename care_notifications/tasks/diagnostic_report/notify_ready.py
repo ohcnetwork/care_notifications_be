@@ -1,9 +1,9 @@
 from care.emr.models.diagnostic_report import DiagnosticReport
 from celery import shared_task
 
-from care_notifications.channels.inapp import dispatch_inapp
 from care_notifications.common.types import EventType, ResourceType
 from care_notifications.settings import plugin_settings
+from care_notifications.tasks.common import notify_users
 
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 60})
@@ -23,7 +23,7 @@ def notify_diagnostic_report_ready(diagnostic_report_id: int):
     title = plugin_settings.DIAGNOSTIC_REPORT_READY_TITLE.format(**context)
     body = plugin_settings.DIAGNOSTIC_REPORT_READY_BODY.format(**context)
 
-    dispatch_inapp(
+    notify_users(
         recipients=[recipient],
         event_type=EventType.diagnostic_report_ready.value,
         resource_type=ResourceType.diagnostic_report.value,
