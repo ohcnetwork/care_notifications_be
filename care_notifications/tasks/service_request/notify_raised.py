@@ -11,7 +11,7 @@ from care_notifications.tasks.common import notify_users
 def notify_service_request_raised(service_request_id: int):
     try:
         service_request = ServiceRequest.objects.select_related(
-            "healthcare_service", "patient"
+            "healthcare_service", "patient", "facility"
         ).get(id=service_request_id)
     except ServiceRequest.DoesNotExist:
         return
@@ -32,4 +32,5 @@ def notify_service_request_raised(service_request_id: int):
         resource_id=service_request.external_id,
         title=title,
         body=body,
+        facility_id=service_request.facility.external_id,
     )

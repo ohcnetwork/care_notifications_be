@@ -12,6 +12,7 @@ class InAppNotification(BaseModel):
     event_type = models.CharField(max_length=128)
     resource_type = models.CharField(max_length=32)
     resource_id = models.UUIDField()
+    facility_id = models.UUIDField(null=True, blank=True, db_index=True)
     title = models.CharField(max_length=255)
     body = models.TextField(blank=True)
     payload = models.JSONField(default=dict, blank=True)

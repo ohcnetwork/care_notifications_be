@@ -16,6 +16,7 @@ class InAppNotificationSpecBase(EMRResource):
     event_type: str
     resource_type: str
     resource_id: UUID4
+    facility_id: UUID4 | None = None
     title: str
     body: str = ""
     payload: dict[str, Any] = {}
