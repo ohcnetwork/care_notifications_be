@@ -9,6 +9,7 @@ def dispatch_inapp(
     resource_id,
     title: str,
     body: str = "",
+    facility_id=None,
     payload: dict | None = None,
 ) -> int:
     rows = [
@@ -17,6 +18,7 @@ def dispatch_inapp(
             event_type=event_type,
             resource_type=resource_type,
             resource_id=resource_id,
+            facility_id=facility_id,
             title=title,
             body=body,
             payload=payload or {},

@@ -43,6 +43,7 @@ def notify_users(
     resource_id,
     title: str,
     body: str = "",
+    facility_id=None,
     payload: dict | None = None,
 ) -> None:
     recipients = list(recipients)
@@ -53,6 +54,7 @@ def notify_users(
         resource_id=resource_id,
         title=title,
         body=body,
+        facility_id=facility_id,
         payload=payload,
     )
     if plugin_settings.WEBPUSH_NOTIFICATIONS_ENABLED:
@@ -64,6 +66,7 @@ def notify_users(
                 "event_type": event_type,
                 "resource_type": resource_type,
                 "resource_id": str(resource_id),
+                "facility_id": str(facility_id) if facility_id else None,
                 **(payload or {}),
             },
         )

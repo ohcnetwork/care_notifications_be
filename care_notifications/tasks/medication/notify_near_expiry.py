@@ -11,7 +11,7 @@ from care_notifications.tasks.common import notify_users
 def notify_medication_near_expiry(inventory_item_id: int):
     try:
         item = InventoryItem.objects.select_related(
-            "location", "product", "product__product_knowledge"
+            "location__facility", "product", "product__product_knowledge"
         ).get(id=inventory_item_id)
     except InventoryItem.DoesNotExist:
         return
@@ -35,4 +35,6 @@ def notify_medication_near_expiry(inventory_item_id: int):
         resource_id=item.external_id,
         title=title,
         body=body,
+        facility_id=item.location.facility.external_id,
+        payload={"location_id": str(item.location.external_id)},
     )

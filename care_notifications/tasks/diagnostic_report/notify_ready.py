@@ -10,7 +10,7 @@ from care_notifications.tasks.common import notify_users
 def notify_diagnostic_report_ready(diagnostic_report_id: int):
     try:
         diagnostic_report = DiagnosticReport.objects.select_related(
-            "service_request__requester", "patient"
+            "service_request__requester", "patient", "encounter__facility"
         ).get(id=diagnostic_report_id)
     except DiagnosticReport.DoesNotExist:
         return
@@ -30,4 +30,6 @@ def notify_diagnostic_report_ready(diagnostic_report_id: int):
         resource_id=diagnostic_report.external_id,
         title=title,
         body=body,
+        facility_id=diagnostic_report.encounter.facility.external_id,
+        payload={"patient_id": str(diagnostic_report.patient.external_id)},
     )

@@ -10,9 +10,9 @@ from care_notifications.tasks.common import notify_users
 @shared_task(autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 60})
 def notify_encounter_ip_created(encounter_id: int):
     try:
-        encounter = Encounter.objects.select_related("patient", "current_location").get(
-            id=encounter_id
-        )
+        encounter = Encounter.objects.select_related(
+            "patient", "current_location", "facility"
+        ).get(id=encounter_id)
     except Encounter.DoesNotExist:
         return
 
@@ -32,4 +32,6 @@ def notify_encounter_ip_created(encounter_id: int):
         resource_id=encounter.external_id,
         title=title,
         body=body,
+        facility_id=encounter.facility.external_id,
+        payload={"patient_id": str(encounter.patient.external_id)},
     )

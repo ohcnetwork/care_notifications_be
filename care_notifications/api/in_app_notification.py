@@ -25,6 +25,7 @@ class InAppNotificationFilters(filters.FilterSet):
     resource_id = filters.UUIDFilter()
     recipient = filters.UUIDFilter(field_name="recipient__external_id")
     unread = filters.BooleanFilter(field_name="read_at", lookup_expr="isnull")
+    facility = filters.UUIDFilter(field_name="facility_id")
 
 class InAppNotificationMarkReadRequest(BaseModel):
     ids: list[UUID4] = Field(min_length=1)
