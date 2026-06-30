@@ -11,7 +11,7 @@ from care_notifications.tasks.common import notify_users
 def notify_service_request_raised(service_request_id: int):
     try:
         service_request = ServiceRequest.objects.select_related(
-            "healthcare_service", "patient", "encounter__facility"
+            "healthcare_service", "patient", "facility"
         ).get(id=service_request_id)
     except ServiceRequest.DoesNotExist:
         return
@@ -25,9 +25,6 @@ def notify_service_request_raised(service_request_id: int):
     title = plugin_settings.SERVICE_REQUEST_RAISED_TITLE.format(**context)
     body = plugin_settings.SERVICE_REQUEST_RAISED_BODY.format(**context)
 
-    encounter = service_request.encounter
-    facility_id = encounter.facility.external_id if encounter else None
-
     notify_users(
         recipients=recipients,
         event_type=EventType.service_request_raised.value,
@@ -35,5 +32,5 @@ def notify_service_request_raised(service_request_id: int):
         resource_id=service_request.external_id,
         title=title,
         body=body,
-        facility_id=facility_id,
+        facility_id=service_request.facility.external_id,
     )

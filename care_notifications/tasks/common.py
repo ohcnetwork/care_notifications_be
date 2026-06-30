@@ -67,6 +67,6 @@ def notify_users(
                 "resource_type": resource_type,
                 "resource_id": str(resource_id),
                 "facility_id": str(facility_id) if facility_id else None,
-                **(payload or {}),
+                "payload": payload or {},
             },
         )

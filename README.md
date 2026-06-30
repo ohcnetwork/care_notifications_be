@@ -126,6 +126,7 @@ Inbox feed. Ordered via `?ordering=` on `created_date` or `modified_date` (prefi
 | `resource_id` | UUID | external_id of the underlying resource |
 | `recipient` | UUID | external_id of the recipient user |
 | `unread` | bool | `true` → only unread (`read_at IS NULL`); `false` → only read |
+| `facility` | UUID | external_id of the facility — for a facility-scoped inbox (e.g. `/facility/:id/notifications`) |
 
 ### `GET /in_app_notifications/{id}/`
 
@@ -168,3 +169,57 @@ Opt a device out. Body: `{"endpoint": "<endpoint>"}`. Deletes the caller's match
 ### `GET /web_push_subscriptions/vapid_public_key/`
 
 Returns `{"public_key": "<WEBPUSH_VAPID_PUBLIC_KEY>"}` for the frontend service worker to call `pushManager.subscribe()`.
+
+## Click-through routing (frontend)
+
+Every in-app and web-push notification carries the identifiers needed to deep-link to the underlying resource. The **backend stores the semantic target; the frontend owns the route mapping** — implement one shared `resource_type → path` function and use it from **both** the inbox click handler **and** the service worker's `notificationclick`.
+
+### Fields delivered
+Both the in-app row (inbox API) and the web-push `event.data` carry the same target:
+
+| Field | Location | Notes |
+|---|---|---|
+| `resource_type` | top-level | one of `encounter`, `service_request`, `diagnostic_report`, `medication_stock` |
+| `resource_id` | top-level | the resource's external_id |
+| `facility_id` | top-level | facility external_id — populated for every current event (each resolves from a non-null FK); the resolver keeps a defensive null-check regardless |
+| `payload.patient_id` | `payload` | present for `encounter`, `diagnostic_report` |
+| `payload.location_id` | `payload` | present for `medication_stock` (this is the route target — see note) |
+
+(`booking` notifications are SMS-only and have no click target.)
+
+### `resource_type` → route
+
+| `resource_type` | route |
+|---|---|
+| `encounter` | `/facility/{facility_id}/patient/{patient_id}/encounter/{resource_id}` |
+| `service_request` | `/facility/{facility_id}/service_requests/{resource_id}` |
+| `diagnostic_report` | `/facility/{facility_id}/patient/{patient_id}/diagnostic_reports/{resource_id}` |
+| `medication_stock` | `/facility/{facility_id}/locations/{location_id}` |
+
+### Reference resolver
+
+```ts
+// Shared by the inbox click handler AND the service worker's notificationclick.
+type Notification = {
+  resource_type: string;
+  resource_id: string;
+  facility_id: string;
+  payload?: Record<string, string>;
+};
+
+function notificationPath(n: Notification): string | null {
+  const { resource_type, resource_id, facility_id, payload = {} } = n;
+  switch (resource_type) {
+    case "encounter":
+      return `/facility/${facility_id}/patient/${payload.patient_id}/encounter/${resource_id}`;
+    case "service_request":
+      return `/facility/${facility_id}/service_requests/${resource_id}`;
+    case "diagnostic_report":
+      return `/facility/${facility_id}/patient/${payload.patient_id}/diagnostic_reports/${resource_id}`;
+    case "medication_stock":
+      return `/facility/${facility_id}/locations/${payload.location_id}`; 
+    default:
+      return null; 
+  }
+}
+```
