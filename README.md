@@ -18,7 +18,7 @@ Add to `plug_config.py`:
 ```python
 care_notifications = Plug(
     name="care_notifications",
-    package_name="git+https://github.com/ohcnetwork/care_notifications_be.git@main",
+    package_name="git+https://github.com/ohcnetwork/care_notifications_be.git",
     version="0.1.0",
     configs={},
 )
